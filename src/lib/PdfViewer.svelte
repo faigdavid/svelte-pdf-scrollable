@@ -3,7 +3,7 @@
 	import * as pdfjs from 'pdfjs-dist';
 	import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
 	import FileSaver from 'file-saver';
-	import { Tooltip } from './utils';
+	import Tooltip from './utils/Tooltip.svelte';
 	import downloadsvg from './images/toolbarDownload.svg?url';
 	import printsvg from './images/toolbarPrint.svg?url';
 	import zoominsvg from './images/toolbarZoomIn.svg?url';
@@ -126,7 +126,7 @@
 <div id="viewer-parent" lang="en-US" class={classname}>
 	<body>
 		{#if passwordError === true}
-			<div class="absolute top-0 bottom-0 w-full">
+			<div class="spdfinner">
 				<p>This document requires a password to open:</p>
 				<p class="">{passwordMessage}</p>
 				<div class="">
@@ -135,35 +135,60 @@
 				</div>
 			</div>
 		{:else}
-			<div
-				class="absolute z-10 top-0 h-11 w-full flex justify-center gap-4 items-center bg-stone-800 drop-shadow-sm"
-			>
+			<div class="spdfbanner">
 				<Tooltip name="Zoom In">
 					<span on:click={onZoomIn}>
-						<img src={zoominsvg} alt="zoom in button" class="w-7 p-1 hover:bg-stone-600" />
+						<img src={zoominsvg} alt="zoom in button" class="spdfbutton" />
 					</span>
 				</Tooltip>
 				<Tooltip name="Zoom Out">
 					<span on:click={onZoomOut}>
-						<img src={zoomoutsvg} alt="zoom out button" class="w-7 p-1 hover:bg-stone-600" />
+						<img src={zoomoutsvg} alt="zoom out button" class="spdfbutton" />
 					</span>
 				</Tooltip>
 				<Tooltip name="Print">
 					<span on:click={() => printPdf(internalURL)}>
-						<img src={printsvg} alt="print button" class="w-7 p-1 hover:bg-stone-600" />
+						<img src={printsvg} alt="print button" class="spdfbutton" />
 					</span>
 				</Tooltip>
 				<Tooltip name="Download">
 					<span on:click={() => downloadPdf(internalURL)}>
-						<img src={downloadsvg} alt="download button" class="w-7 p-1 hover:bg-stone-600" />
+						<img src={downloadsvg} alt="download button" class="spdfbutton" />
 					</span>
 				</Tooltip>
 			</div>
-			<div class="absolute top-0 bottom-0 w-full">
-				<div id="viewerContainer" class="bg-gray-700" bind:this={container}>
+			<div class="spdfinner">
+				<div id="viewerContainer" style="background-color: rgb(55 65 81);" bind:this={container}>
 					<div id="viewer" class="pdfViewer" />
 				</div>
 			</div>
 		{/if}
 	</body>
 </div>
+
+<style>
+	.spdfbanner {
+		position: absolute;
+		z-index: 10;
+		top: 0px;
+		height: 2.75rem;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+		align-items: center;
+		background-color: rgb(41 37 36);
+		box-shadow: 1rem;
+	}
+	.spdfbutton {
+		width: 1.75rem;
+		padding: 0.25rem;
+		background-color: rgb(87 83 78);
+	}
+	.spdfinner {
+		position: absolute;
+		top: 0px;
+		bottom: 0px;
+		width: 100%;
+	}
+</style>

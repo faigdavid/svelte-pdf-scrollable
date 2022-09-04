@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PdfViewer from '$lib/PdfViewer.svelte';
+	import '../app.css';
 </script>
 
 <h1 class="w-fit m-auto text-2xl font-bold">
