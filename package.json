@@ -1,5 +1,5 @@
 {
-	"name": "simple-svelte-pdf",
+	"name": "svelte-pdf-scrollable",
 	"version": "1.0.0",
 	"scripts": {
 		"dev": "vite dev",

@@ -183,6 +183,8 @@
 	.spdfbutton {
 		width: 1.75rem;
 		padding: 0.25rem;
+	}
+	.spdfbutton:hover {
 		background-color: rgb(87 83 78);
 	}
 	.spdfinner {
