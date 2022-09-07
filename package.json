@@ -1,6 +1,6 @@
 {
 	"name": "simple-svelte-pdf",
-	"version": "0.1.5",
+	"version": "1.0.0",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "svelte-kit sync && svelte-package",

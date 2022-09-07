@@ -123,8 +123,8 @@
 	});
 </script>
 
-<div id="viewer-parent" lang="en-US" class={classname}>
-	<body>
+<div lang="en-US" class={classname}>
+	<body id="viewer-parent" class="w-full h-full">
 		{#if passwordError === true}
 			<div class="spdfinner">
 				<p>This document requires a password to open:</p>

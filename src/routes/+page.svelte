@@ -8,5 +8,5 @@
 </h1>
 <PdfViewer
 	url="/D_Faig_report_vf.pdf"
-	class="absolute top-20 left-[15%] right-[15%] bottom-0 outline outline-1 outline-offset-0"
+	class="absolute top-20 left-1/2 -translate-x-1/2 w-[900px] h-[800px] outline outline-1 outline-offset-0"
 />
