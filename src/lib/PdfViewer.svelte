@@ -8,12 +8,23 @@
 	import printsvg from './images/toolbarPrint.svg?url';
 	import zoominsvg from './images/toolbarZoomIn.svg?url';
 	import zoomoutsvg from './images/toolbarZoomOut.svg?url';
+	import spreadsvg from './images/toolbarPageView.svg?url';
 	import './pdfviewer.css';
 
 	export let url: string | URL;
 	export let scale = 1;
 	let classname = '';
 	export { classname as class };
+	enum SpreadModes {
+		'NONE',
+		'ODD',
+		'EVEN',
+	}
+	export let spread_mode = '';
+	let _spread_mode = SpreadModes.NONE;
+	if (spread_mode in SpreadModes) {
+		_spread_mode = SpreadModes[spread_mode as 'NONE' | 'ODD' | 'EVEN'];
+	}
 
 	const internalURL = url.toString();
 
@@ -23,12 +34,13 @@
 	let password = '';
 	let passwordError = false;
 	let passwordMessage = '';
-	const minScale = 1.0;
+	const minScale = 0.5;
 	const maxScale = 2.3;
 
 	let onPasswordSubmit = () => {};
 	let onZoomIn = () => {};
 	let onZoomOut = () => {};
+	let onSpreadMode = () => {};
 
 	const printPdf = (url: string) => {
 		const iframe = document.createElement('iframe');
@@ -46,7 +58,7 @@
 	};
 
 	const downloadPdf = (fileURL: string) => {
-		let fileName = fileURL.substring(fileURL.lastIndexOf('/') + 1);
+		const fileName = fileURL.substring(fileURL.lastIndexOf('/') + 1);
 		FileSaver.saveAs(fileURL, fileName);
 	};
 
@@ -64,7 +76,6 @@
 				eventBus,
 				linkService: pdfLinkService,
 			});
-			console.log(container);
 			const pdfViewer = new pdfjsViewer.PDFViewer({
 				container,
 				eventBus,
@@ -73,6 +84,7 @@
 				l10n: pdfjsViewer.NullL10n,
 			});
 			pdfViewer.currentScale = scale;
+			pdfViewer.spreadMode = _spread_mode;
 			pdfLinkService.setViewer(pdfViewer);
 			return { pdfViewer, pdfLinkService };
 		});
@@ -106,7 +118,10 @@
 					pdfViewer.currentScale = scale;
 				}
 			};
-
+			onSpreadMode = () => {
+				_spread_mode = (_spread_mode + 1) % 3;
+				pdfViewer.spreadMode = _spread_mode;
+			};
 			return pdfViewer;
 		};
 		const render = renderDocument();
@@ -136,6 +151,11 @@
 			</div>
 		{:else}
 			<div class="spdfbanner">
+				<Tooltip name="Spread Mode">
+					<span on:click={onSpreadMode}>
+						<img src={spreadsvg} alt="spread mode button" class="spdfbutton" />
+					</span>
+				</Tooltip>
 				<Tooltip name="Zoom In">
 					<span on:click={onZoomIn}>
 						<img src={zoominsvg} alt="zoom in button" class="spdfbutton" />
