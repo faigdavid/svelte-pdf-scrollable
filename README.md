@@ -18,13 +18,19 @@ Feel free to take the code apart and use it however you like!
 
 ## Install
 
+If you are making a new svelte-kit project, refer to https://kit.svelte.dev/docs/introduction#getting-started
+
 ```
 npm install svelte-pdf-scrollable
 ```
 
-Make sure when you use the component it is positioned (not static). Otherwise it will not size itself properly:
+From there you can simply import and use the viewer.
 
 ```
+<script>
+    import PdfViewer from 'svelte-pdf-scrollable';
+</script>
+
 <PdfViewer
 	url="/my_pdf_name.pdf"
 	style="
@@ -39,8 +45,9 @@ Make sure when you use the component it is positioned (not static). Otherwise it
         outline-offset: 0px;
     "
 />
-
 ```
+
+Make sure your `<PdfViewer>` styling is not `position: static`. Otherwise it will not size itself properly within its container.
 
 ## Demo
 
@@ -56,4 +63,4 @@ npm install
 npm run dev
 ```
 
-From there you should be able to see it at `http://localhost:5173/`
+From there you should be able to see the demo at `http://localhost:5173/`
