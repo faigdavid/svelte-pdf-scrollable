@@ -112,8 +112,6 @@
 				findController: pdf_find_controller,
 				l10n: pdfjs_viewer.NullL10n,
 			});
-			pdf_viewer.currentScale = scale;
-			pdf_viewer.spreadMode = _spread_mode;
 			pdf_link_service.setViewer(pdf_viewer);
 			return { pdf_viewer, pdf_link_service };
 		});
@@ -129,6 +127,8 @@
 				.then((pdf_document) => {
 					pdf_viewer.setDocument(pdf_document);
 					pdf_link_service.setDocument(pdf_document, null);
+					pdf_viewer.currentScale = scale;
+					pdf_viewer.spreadMode = _spread_mode;
 				})
 				.catch(function (error) {
 					password_error = true;
