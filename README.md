@@ -44,6 +44,7 @@ From there you can simply import and use the viewer.
         outline-width: 1px;
         outline-offset: 0px;
     "
+    scale={0.8}
 />
 ```
 

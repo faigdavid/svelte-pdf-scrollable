@@ -19,4 +19,5 @@
         outline-width: 1px;
         outline-offset: 0px;
     "
+	scale={0.8}
 />
