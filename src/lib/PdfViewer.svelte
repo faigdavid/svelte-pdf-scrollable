@@ -9,38 +9,46 @@
 	import zoominsvg from './images/toolbarZoomIn.svg?url';
 	import zoomoutsvg from './images/toolbarZoomOut.svg?url';
 	import spreadsvg from './images/toolbarPageView.svg?url';
+	import gapsvg from './images/toolbarPageGap.svg?url';
 	import './pdfviewer.css';
 
-	export let url: string | URL;
-	export let scale = 1;
-	let classname = '';
+	pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
+	export let url: string | URL; //url of pdf.
+	const INTERNAL_URL = url.toString();
+
+	let classname = ''; //allows component to recieve classes
 	export { classname as class };
-	enum SpreadModes {
+
+	export let scale = 1; // init zoom values
+	const MIN_SCALE = 0.5;
+	const MAX_SCALE = 2.3;
+
+	enum SpreadModes { //init display modes.
 		'NONE',
 		'ODD',
 		'EVEN',
 	}
-	export let spread_mode = '';
+	export let display_mode = '';
 	let _spread_mode = SpreadModes.NONE;
-	if (spread_mode in SpreadModes) {
-		_spread_mode = SpreadModes[spread_mode as 'NONE' | 'ODD' | 'EVEN'];
+	if (display_mode in SpreadModes) {
+		_spread_mode = SpreadModes[display_mode as 'NONE' | 'ODD' | 'EVEN'];
 	}
 
-	const internalURL = url.toString();
-
-	pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
-
+	//internal variables.
+	let component_container: HTMLDivElement;
 	let container: HTMLDivElement;
 	let password = '';
-	let passwordError = false;
-	let passwordMessage = '';
-	const minScale = 0.5;
-	const maxScale = 2.3;
+	let password_error = false;
+	let password_message = '';
+	let _prev_gap_top = '8px';
+	let _prev_gap_bottom = '8px';
 
+	//Init button handlers (some require hydration on mount)
 	let onPasswordSubmit = () => {};
 	let onZoomIn = () => {};
 	let onZoomOut = () => {};
-	let onSpreadMode = () => {};
+	let onPageDisplay = () => {};
 
 	const printPdf = (url: string) => {
 		const iframe = document.createElement('iframe');
@@ -57,72 +65,91 @@
 		iframe.src = url;
 	};
 
-	const downloadPdf = (fileURL: string) => {
-		const fileName = fileURL.substring(fileURL.lastIndexOf('/') + 1);
-		FileSaver.saveAs(fileURL, fileName);
+	const downloadPdf = (file_url: string) => {
+		const filename = file_url.substring(file_url.lastIndexOf('/') + 1);
+		FileSaver.saveAs(file_url, filename);
+	};
+
+	const onPageGap = () => {
+		const pages = component_container.getElementsByClassName('page');
+		if (pages.length === 0) {
+			return;
+		}
+		const current_styles = getComputedStyle(pages[0] as HTMLDivElement);
+		const current_gap_bottom = current_styles.marginBottom;
+		const current_gap_top = current_styles.marginTop;
+		for (const page of pages) {
+			(page as HTMLDivElement).style.marginBottom = _prev_gap_bottom;
+			(page as HTMLDivElement).style.marginTop = _prev_gap_top;
+		}
+		_prev_gap_bottom = current_gap_bottom;
+		_prev_gap_top = current_gap_top;
 	};
 
 	onMount(() => {
-		const initPromise = import('pdfjs-dist/web/pdf_viewer.js').then((pdfjsViewer) => {
-			const eventBus = new pdfjsViewer.EventBus();
+		if (['static', 'initial'].includes(getComputedStyle(component_container).position)) {
+			console.warn('PdfViewer sizing only works when it is positioned (not static).');
+		}
+		const init_promise = import('pdfjs-dist/web/pdf_viewer.js').then((pdfjs_viewer) => {
+			const event_bus = new pdfjs_viewer.EventBus();
 
 			// (Optionally) enable hyperlinks within PDF files.
-			const pdfLinkService = new pdfjsViewer.PDFLinkService({
-				eventBus,
+			const pdf_link_service = new pdfjs_viewer.PDFLinkService({
+				eventBus: event_bus,
 			});
 
 			// (Optionally) enable find controller.
-			const pdfFindController = new pdfjsViewer.PDFFindController({
-				eventBus,
-				linkService: pdfLinkService,
+			const pdf_find_controller = new pdfjs_viewer.PDFFindController({
+				eventBus: event_bus,
+				linkService: pdf_link_service,
 			});
-			const pdfViewer = new pdfjsViewer.PDFViewer({
+			const pdf_viewer = new pdfjs_viewer.PDFViewer({
 				container,
-				eventBus,
-				linkService: pdfLinkService,
-				findController: pdfFindController,
-				l10n: pdfjsViewer.NullL10n,
+				eventBus: event_bus,
+				linkService: pdf_link_service,
+				findController: pdf_find_controller,
+				l10n: pdfjs_viewer.NullL10n,
 			});
-			pdfViewer.currentScale = scale;
-			pdfViewer.spreadMode = _spread_mode;
-			pdfLinkService.setViewer(pdfViewer);
-			return { pdfViewer, pdfLinkService };
+			pdf_viewer.currentScale = scale;
+			pdf_viewer.spreadMode = _spread_mode;
+			pdf_link_service.setViewer(pdf_viewer);
+			return { pdf_viewer, pdf_link_service };
 		});
 
 		const renderDocument = async () => {
-			const { pdfViewer, pdfLinkService } = await initPromise;
+			const { pdf_viewer, pdf_link_service } = await init_promise;
 			// Loading document.
-			const loadingTask = pdfjs.getDocument({
+			const loading_task = pdfjs.getDocument({
 				url,
 				password,
 			});
-			loadingTask.promise
-				.then((pdfDocument) => {
-					pdfViewer.setDocument(pdfDocument);
-					pdfLinkService.setDocument(pdfDocument, null);
+			loading_task.promise
+				.then((pdf_document) => {
+					pdf_viewer.setDocument(pdf_document);
+					pdf_link_service.setDocument(pdf_document, null);
 				})
 				.catch(function (error) {
-					passwordError = true;
-					passwordMessage = error.message;
+					password_error = true;
+					password_message = error.message;
 				});
 
 			onZoomIn = () => {
-				if (scale <= maxScale) {
+				if (scale <= MAX_SCALE) {
 					scale = scale + 0.1;
-					pdfViewer.currentScale = scale;
+					pdf_viewer.currentScale = scale;
 				}
 			};
 			onZoomOut = () => {
-				if (scale >= minScale) {
+				if (scale >= MIN_SCALE) {
 					scale = scale - 0.1;
-					pdfViewer.currentScale = scale;
+					pdf_viewer.currentScale = scale;
 				}
 			};
-			onSpreadMode = () => {
+			onPageDisplay = () => {
 				_spread_mode = (_spread_mode + 1) % 3;
-				pdfViewer.spreadMode = _spread_mode;
+				pdf_viewer.spreadMode = _spread_mode;
 			};
-			return pdfViewer;
+			return pdf_viewer;
 		};
 		const render = renderDocument();
 
@@ -131,31 +158,26 @@
 		};
 
 		return () => {
-			render.then((pdfViewer) => {
-				pdfViewer.cleanup();
+			render.then((pdf_viewer) => {
+				pdf_viewer.cleanup();
 			});
 		};
 	});
 </script>
 
-<div lang="en-US" class={classname}>
-	<body id="viewer-parent" class="w-full h-full">
-		{#if passwordError === true}
+<div class={classname} bind:this={component_container}>
+	<div id="viewer-parent" class="w-full h-full">
+		{#if password_error === true}
 			<div class="spdfinner">
 				<p>This document requires a password to open:</p>
-				<p class="">{passwordMessage}</p>
-				<div class="">
-					<input type="password" class="" bind:value={password} />
+				<p>{password_message}</p>
+				<div>
+					<input type="password" bind:value={password} />
 					<button on:click={onPasswordSubmit} class="password-button"> Submit </button>
 				</div>
 			</div>
 		{:else}
 			<div class="spdfbanner">
-				<Tooltip name="Spread Mode">
-					<span on:click={onSpreadMode}>
-						<img src={spreadsvg} alt="spread mode button" class="spdfbutton" />
-					</span>
-				</Tooltip>
 				<Tooltip name="Zoom In">
 					<span on:click={onZoomIn}>
 						<img src={zoominsvg} alt="zoom in button" class="spdfbutton" />
@@ -166,13 +188,23 @@
 						<img src={zoomoutsvg} alt="zoom out button" class="spdfbutton" />
 					</span>
 				</Tooltip>
+				<Tooltip name="Toggle Page Display">
+					<span on:click={onPageGap}>
+						<img src={gapsvg} alt="toggle page gap button" class="spdfbutton" />
+					</span>
+				</Tooltip>
+				<Tooltip name="Toggle Page Display">
+					<span on:click={onPageDisplay}>
+						<img src={spreadsvg} alt="toggle page display button" class="spdfbutton" />
+					</span>
+				</Tooltip>
 				<Tooltip name="Print">
-					<span on:click={() => printPdf(internalURL)}>
+					<span on:click={() => printPdf(INTERNAL_URL)}>
 						<img src={printsvg} alt="print button" class="spdfbutton" />
 					</span>
 				</Tooltip>
 				<Tooltip name="Download">
-					<span on:click={() => downloadPdf(internalURL)}>
+					<span on:click={() => downloadPdf(INTERNAL_URL)}>
 						<img src={downloadsvg} alt="download button" class="spdfbutton" />
 					</span>
 				</Tooltip>
@@ -183,7 +215,7 @@
 				</div>
 			</div>
 		{/if}
-	</body>
+	</div>
 </div>
 
 <style>

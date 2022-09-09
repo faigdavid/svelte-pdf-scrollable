@@ -1,8 +1,16 @@
 # svelte-pdf-scrollable
 
-A svelte component that can render PDF files using pdfjs. Comes with zoom, print, and download buttons. Some other svelte pdf components are out there but they are all single-page viewers, so I decided to build a scrollable viewer.
+A svelte component that can render PDF files using pdfjs. Since the PDFjs official documentation doesn't really bridge the gap from the examples to the demo viewer, I decided to make something in-between for hobbiests like me to work with.
 
-Since the PDFjs official documentation doesn't really bridge the gap from the examples to the demo viewer, I decided to make something in-between for hobbiests like me to work with.
+Some other svelte pdf components are out there but they are all single-page viewers, so I decided to build a scrollable viewer. I have not yet included a way to toggle between scroll-mode and page-mode.
+
+Comes with several buttons:
+
+- Zoom In / Zoom Out
+- Toggle Page Gap
+- Toggle Spread Mode
+- Print
+- Download
 
 Feel free to take the code apart and use it however you like!
 
