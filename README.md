@@ -1,6 +1,8 @@
 # svelte-pdf-scrollable
 
-A svelte component that can render PDF files using pdfjs. Since the PDFjs official documentation doesn't really bridge the gap from the examples to the demo viewer, I decided to make something in-between for hobbiests like me to work with.
+A sveltekit component that can render PDF files using pdfjs. Since the PDFjs official documentation doesn't really bridge the gap from the examples to the demo viewer, I decided to make something in-between for hobbiests like me to work with.
+
+I have not tried to get this working on svelte only! I relied heavily on vite's import capabilities.
 
 Some other svelte pdf components are out there but they are all single-page viewers, so I decided to build a scrollable viewer. I have not yet included a way to toggle between scroll-mode and page-mode.
 
@@ -13,6 +15,32 @@ Comes with several buttons:
 - Download
 
 Feel free to take the code apart and use it however you like!
+
+## Install
+
+```
+npm install svelte-pdf-scrollable
+```
+
+Make sure when you use the component it is positioned (not static). Otherwise it will not size itself properly:
+
+```
+<PdfViewer
+	url="/my_pdf_name.pdf"
+	style="
+        position: absolute;
+        top: 5rem;
+        left: 50%;
+        transform: translate(-50%);
+        width: 900px;
+        height: 800px;
+        outline-style: solid;
+        outline-width: 1px;
+        outline-offset: 0px;
+    "
+/>
+
+```
 
 ## Demo
 

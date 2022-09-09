@@ -3,7 +3,6 @@
 	import * as pdfjs from 'pdfjs-dist';
 	import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
 	import FileSaver from 'file-saver';
-	import Tooltip from './utils/Tooltip.svelte';
 	import downloadsvg from './images/toolbarDownload.svg?url';
 	import printsvg from './images/toolbarPrint.svg?url';
 	import zoominsvg from './images/toolbarZoomIn.svg?url';
@@ -19,6 +18,9 @@
 
 	let classname = ''; //allows component to recieve classes
 	export { classname as class };
+
+	let styles = ''; //allows component to recieve classes
+	export { styles as style };
 
 	export let scale = 1; // init zoom values
 	const MIN_SCALE = 0.5;
@@ -165,7 +167,7 @@
 	});
 </script>
 
-<div class={classname} bind:this={component_container}>
+<div class={classname} style={styles} bind:this={component_container}>
 	<div id="viewer-parent" class="w-full h-full">
 		{#if password_error === true}
 			<div class="spdfinner">
@@ -178,36 +180,29 @@
 			</div>
 		{:else}
 			<div class="spdfbanner">
-				<Tooltip name="Zoom In">
-					<span on:click={onZoomIn}>
-						<img src={zoominsvg} alt="zoom in button" class="spdfbutton" />
-					</span>
-				</Tooltip>
-				<Tooltip name="Zoom Out">
-					<span on:click={onZoomOut}>
-						<img src={zoomoutsvg} alt="zoom out button" class="spdfbutton" />
-					</span>
-				</Tooltip>
-				<Tooltip name="Toggle Page Display">
-					<span on:click={onPageGap}>
-						<img src={gapsvg} alt="toggle page gap button" class="spdfbutton" />
-					</span>
-				</Tooltip>
-				<Tooltip name="Toggle Page Display">
-					<span on:click={onPageDisplay}>
-						<img src={spreadsvg} alt="toggle page display button" class="spdfbutton" />
-					</span>
-				</Tooltip>
-				<Tooltip name="Print">
-					<span on:click={() => printPdf(INTERNAL_URL)}>
-						<img src={printsvg} alt="print button" class="spdfbutton" />
-					</span>
-				</Tooltip>
-				<Tooltip name="Download">
-					<span on:click={() => downloadPdf(INTERNAL_URL)}>
-						<img src={downloadsvg} alt="download button" class="spdfbutton" />
-					</span>
-				</Tooltip>
+				<span class="toolbarbutton" on:click={onZoomIn}>
+					<img title="Zoom In" src={zoominsvg} alt="zoom in" class="spdfbutton" />
+				</span>
+				<span class="toolbarbutton" on:click={onZoomOut}>
+					<img title="Zoom Out" src={zoomoutsvg} alt="zoom out" class="spdfbutton" />
+				</span>
+				<span class="toolbarbutton" on:click={onPageGap}>
+					<img title="Toggle Page Display" src={gapsvg} alt="toggle page gap" class="spdfbutton" />
+				</span>
+				<span class="toolbarbutton" on:click={onPageDisplay}>
+					<img
+						title="Toggle Page Display"
+						src={spreadsvg}
+						alt="toggle page display"
+						class="spdfbutton"
+					/>
+				</span>
+				<span class="toolbarbutton" on:click={() => printPdf(INTERNAL_URL)}>
+					<img title="Print" src={printsvg} alt="print" class="spdfbutton" />
+				</span>
+				<span class="toolbarbutton" on:click={() => downloadPdf(INTERNAL_URL)}>
+					<img title="Download" src={downloadsvg} alt="download" class="spdfbutton" />
+				</span>
 			</div>
 			<div class="spdfinner">
 				<div id="viewerContainer" style="background-color: rgb(55 65 81);" bind:this={container}>
@@ -227,22 +222,25 @@
 		width: 100%;
 		display: flex;
 		justify-content: center;
-		gap: 1rem;
+		gap: 0.5rem;
 		align-items: center;
 		background-color: rgb(41 37 36);
 		box-shadow: 1rem;
 	}
 	.spdfbutton {
-		width: 1.75rem;
-		padding: 0.25rem;
-	}
-	.spdfbutton:hover {
-		background-color: rgb(87 83 78);
+		width: 25px;
 	}
 	.spdfinner {
 		position: absolute;
 		top: 0px;
 		bottom: 0px;
 		width: 100%;
+	}
+	.toolbarbutton:hover {
+		background-color: rgb(87 83 78);
+	}
+	.toolbarbutton {
+		border-radius: 2px;
+		padding: 4px;
 	}
 </style>
