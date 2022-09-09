@@ -47,7 +47,7 @@
 	"author": "github.com/faigdavid",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/faigdavid/simple-svelte-pdf"
+		"url": "https://github.com/faigdavid/svelte-pdf-scrollable"
 	},
 	"dependencies": {
 		"file-saver": "^2.0.5",
