@@ -1,6 +1,6 @@
 {
 	"name": "svelte-pdf-scrollable",
-	"version": "1.2.2",
+	"version": "1.2.3-typechecked",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "svelte-kit sync && svelte-package",
@@ -47,7 +47,6 @@
 		"url": "https://github.com/faigdavid/svelte-pdf-scrollable"
 	},
 	"dependencies": {
-		"file-saver": "^2.0.5",
 		"pdfjs-dist": "^2.16.105"
 	}
 }

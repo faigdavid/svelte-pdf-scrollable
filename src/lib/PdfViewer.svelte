@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import * as pdfjs from 'pdfjs-dist';
 	import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
-	import FileSaver from 'file-saver';
 	import downloadsvg from './images/toolbarDownload.svg?url';
 	import printsvg from './images/toolbarPrint.svg?url';
 	import zoominsvg from './images/toolbarZoomIn.svg?url';
@@ -47,10 +46,11 @@
 	let _prev_gap_bottom = '8px';
 
 	//Init button handlers (some require hydration on mount)
-	let onPasswordSubmit = () => {};
-	let onZoomIn = () => {};
-	let onZoomOut = () => {};
-	let onPageDisplay = () => {};
+	let onPasswordSubmit: () => void;
+	let onZoomIn: () => void;
+	let onZoomOut: () => void;
+	let onPageDisplay: () => void;
+	let downloadPdf: (url: string) => void;
 
 	const printPdf = (url: string) => {
 		const iframe = document.createElement('iframe');
@@ -65,11 +65,6 @@
 		};
 
 		iframe.src = url;
-	};
-
-	const downloadPdf = (file_url: string) => {
-		const filename = file_url.substring(file_url.lastIndexOf('/') + 1);
-		FileSaver.saveAs(file_url, filename);
 	};
 
 	const onPageGap = () => {
@@ -99,6 +94,7 @@
 			const pdf_link_service = new pdfjs_viewer.PDFLinkService({
 				eventBus: event_bus,
 			});
+			const downloadManager = new pdfjs_viewer.DownloadManager();
 
 			// (Optionally) enable find controller.
 			const pdf_find_controller = new pdfjs_viewer.PDFFindController({
@@ -111,6 +107,7 @@
 				linkService: pdf_link_service,
 				findController: pdf_find_controller,
 				l10n: pdfjs_viewer.NullL10n,
+				downloadManager,
 			});
 			pdf_link_service.setViewer(pdf_viewer);
 			return { pdf_viewer, pdf_link_service };
@@ -150,6 +147,11 @@
 			onPageDisplay = () => {
 				_spread_mode = (_spread_mode + 1) % 3;
 				pdf_viewer.spreadMode = _spread_mode;
+			};
+			downloadPdf = (file_url: string) => {
+				const filename = file_url.substring(file_url.lastIndexOf('/') + 1);
+				console.log(file_url);
+				pdf_viewer.downloadManager?.downloadUrl(file_url, filename);
 			};
 			return pdf_viewer;
 		};
