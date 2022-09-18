@@ -1,6 +1,6 @@
 {
 	"name": "svelte-pdf-scrollable",
-	"version": "1.2.3-typechecked",
+	"version": "1.2.5",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "svelte-kit sync && svelte-package",

@@ -50,7 +50,6 @@
 	let onZoomIn: () => void;
 	let onZoomOut: () => void;
 	let onPageDisplay: () => void;
-	let downloadPdf: (url: string) => void;
 
 	const printPdf = (url: string) => {
 		const iframe = document.createElement('iframe');
@@ -94,7 +93,6 @@
 			const pdf_link_service = new pdfjs_viewer.PDFLinkService({
 				eventBus: event_bus,
 			});
-			const downloadManager = new pdfjs_viewer.DownloadManager();
 
 			// (Optionally) enable find controller.
 			const pdf_find_controller = new pdfjs_viewer.PDFFindController({
@@ -107,7 +105,6 @@
 				linkService: pdf_link_service,
 				findController: pdf_find_controller,
 				l10n: pdfjs_viewer.NullL10n,
-				downloadManager,
 			});
 			pdf_link_service.setViewer(pdf_viewer);
 			return { pdf_viewer, pdf_link_service };
@@ -119,6 +116,7 @@
 			const loading_task = pdfjs.getDocument({
 				url,
 				password,
+				isEvalSupported: false,
 			});
 			loading_task.promise
 				.then((pdf_document) => {
@@ -148,11 +146,6 @@
 				_spread_mode = (_spread_mode + 1) % 3;
 				pdf_viewer.spreadMode = _spread_mode;
 			};
-			downloadPdf = (file_url: string) => {
-				const filename = file_url.substring(file_url.lastIndexOf('/') + 1);
-				console.log(file_url);
-				pdf_viewer.downloadManager?.downloadUrl(file_url, filename);
-			};
 			return pdf_viewer;
 		};
 		const render = renderDocument();
@@ -167,6 +160,25 @@
 			});
 		};
 	});
+
+	function download(url: string) {
+		const a = document.createElement('a');
+		if (!a.click) {
+			throw new Error('DownloadManager: "a.click()" is not supported.');
+		}
+		a.href = url;
+		a.target = '_parent';
+		// Use a.download if available. This increases the likelihood that
+		// the file is downloaded instead of opened by another PDF plugin.
+		if ('download' in a) {
+			a.download = url.substring(url.lastIndexOf('/') + 1);
+		}
+		// <a> must be in the document for recent Firefox versions,
+		// otherwise .click() is ignored.
+		(document.body || document.documentElement).append(a);
+		a.click();
+		a.remove();
+	}
 </script>
 
 <div class={classname} style={styles} bind:this={component_container}>
@@ -202,7 +214,7 @@
 				<span class="toolbarbutton" on:click={() => printPdf(INTERNAL_URL)}>
 					<img title="Print" src={printsvg} alt="print" class="spdfbutton" />
 				</span>
-				<span class="toolbarbutton" on:click={() => downloadPdf(INTERNAL_URL)}>
+				<span class="toolbarbutton" on:click={() => download(INTERNAL_URL)}>
 					<img title="Download" src={downloadsvg} alt="download" class="spdfbutton" />
 				</span>
 			</div>
